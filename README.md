@@ -1,12 +1,13 @@
 # Sitemap Monitor
 
+[English](README.md) | [中文](README_ZH.md)
+
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 ![Status](https://img.shields.io/badge/status-active-success.svg)
 ![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)
 
 **Sitemap Monitor** is an open-source, powerful SaaS solution for tracking, analyzing, and optimizing your website's sitemaps. Built for developers and SEO professionals.
 
-![Sitemap Monitor Dashboard](https://via.placeholder.com/1200x600?text=Dashboard+Preview)
 
 ## ✨ Features
 
