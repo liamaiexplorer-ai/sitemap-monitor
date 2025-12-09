@@ -12,6 +12,7 @@ export interface RecentChange {
 
 export interface DashboardStats {
   active_monitors: number
+  error_monitors: number
   today_changes: number
   notification_channels: number
   recent_changes: RecentChange[]

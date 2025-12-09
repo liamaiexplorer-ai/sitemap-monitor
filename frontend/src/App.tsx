@@ -1,4 +1,4 @@
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate, Outlet } from 'react-router-dom'
 import { useAuthStore } from '@/stores/authStore'
 import { AppLayout, AuthLayout } from '@/components/Layout'
 import {
@@ -8,15 +8,18 @@ import {
   ResetPasswordPage,
 } from '@/pages/Auth'
 import { DashboardPage } from '@/pages/Dashboard/DashboardPage'
+import SettingsPage from '@/pages/Dashboard/Settings'
+import SitemapsPage from '@/pages/Dashboard/Sitemaps'
 import { MonitorListPage } from '@/pages/Monitors/MonitorListPage'
 import { MonitorDetailPage } from '@/pages/Monitors/MonitorDetailPage'
+import LandingPage from '@/pages/marketing/Landing'
 
 // 路由保护组件
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuthStore()
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />
+    return <Navigate to="/" replace />
   }
 
   return <>{children}</>
@@ -39,7 +42,7 @@ function App() {
       <Route
         element={
           <PublicRoute>
-            <AuthLayout />
+            <Outlet />
           </PublicRoute>
         }
       >
@@ -60,11 +63,13 @@ function App() {
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/monitors" element={<MonitorListPage />} />
         <Route path="/monitors/:id" element={<MonitorDetailPage />} />
+        <Route path="/sitemaps" element={<SitemapsPage />} />
+        <Route path="/settings" element={<SettingsPage />} />
       </Route>
 
       {/* 默认重定向 */}
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      <Route path="/" element={<LandingPage />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
 }

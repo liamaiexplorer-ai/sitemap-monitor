@@ -4,15 +4,11 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { BrowserRouter } from 'react-router-dom'
 import App from './App'
 import './index.css'
+import './i18n/config'
 
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 5 * 60 * 1000,
-      retry: 1,
-    },
-  },
-})
+import { queryClient } from '@/utils/queryClient'
+
+// const queryClient = new QueryClient({ ... }) - Moved to utils
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

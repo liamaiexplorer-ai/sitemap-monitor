@@ -1,0 +1,59 @@
+{
+    "common": {
+        "dashboard": "仪表盘",
+        "monitors": "监控任务",
+        "sitemaps": "Sitemaps",
+        "settings": "设置",
+        "documentation": "文档",
+        "login": "登录",
+        "register": "注册",
+        "logout": "退出登录",
+        "back_to_home": "返回首页",
+        "platform": "平台",
+        "resources": "资源"
+    },
+    "landing": {
+        "hero_title": "掌握您的",
+        "hero_title_highlight": "Sitemap 及其变动",
+        "hero_desc": "轻松监控、分析并优化您的 Sitemap。实时获取变动通知和 SEO 健康问题。",
+        "get_started": "免费开始监控",
+        "view_demo": "查看演示",
+        "features_title": "掌控 Sitemap 所需的一切",
+        "features_desc": "强大的工具帮助您自动追踪、分析和优化网站结构。",
+        "footer_desc": "现代化的开源 Sitemap 智能与 SEO 监控解决方案。"
+    },
+    "dashboard": {
+        "welcome": "欢迎回来，以下是您 Sitemap 的最新动态。",
+        "new_monitor": "新建监控",
+        "active_monitors": "活跃监控",
+        "active_monitors_desc": "正在追踪的 Sitemap 总数",
+        "changes_today": "今日变更",
+        "changes_today_desc": "过去 24 小时检测到的变更",
+        "all_good": "所有系统运行正常",
+        "recent_changes": "最近变更",
+        "recent_changes_desc": "最近检测到的 Sitemap 修改。",
+        "view_all": "查看全部",
+        "loading": "加载活动中...",
+        "no_changes": "暂无最近变更。",
+        "added": "新增",
+        "removed": "移除",
+        "modified": "修改"
+    },
+    "auth": {
+        "welcome_back": "欢迎回来",
+        "sign_in_desc": "输入您的账号信息以访问控制台",
+        "email": "电子邮箱",
+        "password": "密码",
+        "forgot_password": "忘记密码？",
+        "sign_in": "登录",
+        "no_account": "还没有账号？",
+        "sign_up": "立即注册",
+        "create_account": "创建账号",
+        "sign_up_desc": "开始免费监控您的 Sitemap",
+        "confirm_password": "确认密码",
+        "already_have_account": "已有账号？"
+    },
+    "status": {
+        "error": "个系统运行异常"
+    }
+}

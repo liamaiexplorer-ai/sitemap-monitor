@@ -26,10 +26,12 @@ class RecentChangeItem(BaseModel):
     created_at: datetime
 
 
+
 class DashboardStatsResponse(BaseModel):
     """仪表盘统计响应."""
 
     active_monitors: int
+    error_monitors: int
     today_changes: int
     notification_channels: int
     recent_changes: list[RecentChangeItem]
@@ -46,6 +48,9 @@ async def get_dashboard_stats(
 
     # 统计活跃监控数
     active_monitors = await count_monitors(db, user.id, status=MonitorStatus.ACTIVE)
+
+    # 统计异常监控数
+    error_monitors = await count_monitors(db, user.id, status=MonitorStatus.ERROR)
 
     # 统计今日变更数
     today_changes = await get_recent_changes_count(db, user.id, days=1)
@@ -81,6 +86,7 @@ async def get_dashboard_stats(
 
     return DashboardStatsResponse(
         active_monitors=active_monitors,
+        error_monitors=error_monitors,
         today_changes=today_changes,
         notification_channels=notification_channels,
         recent_changes=recent_changes,

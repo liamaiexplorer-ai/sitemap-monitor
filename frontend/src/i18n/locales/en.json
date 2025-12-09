@@ -1,0 +1,59 @@
+{
+    "common": {
+        "dashboard": "Dashboard",
+        "monitors": "Monitors",
+        "sitemaps": "Sitemaps",
+        "settings": "Settings",
+        "documentation": "Documentation",
+        "login": "Login",
+        "register": "Register",
+        "logout": "Logout",
+        "back_to_home": "Back to Home",
+        "platform": "Platform",
+        "resources": "Resources"
+    },
+    "landing": {
+        "hero_title": "Master Your",
+        "hero_title_highlight": "Sitemap Intelligence",
+        "hero_desc": "Effortlessly monitor, analyze, and optimize your sitemaps. Get real-time alerts on changes and SEO health issues.",
+        "get_started": "Start Monitoring Free",
+        "view_demo": "View Demo",
+        "features_title": "Everything you need to master your sitemaps",
+        "features_desc": "Powerful tools to help you track, analyze, and optimize your website's structure automatically.",
+        "footer_desc": "The modern, open-source solution for sitemap intelligence and SEO monitoring. Built for scale."
+    },
+    "dashboard": {
+        "welcome": "Welcome back, here's what's happening with your sitemaps.",
+        "new_monitor": "New Monitor",
+        "active_monitors": "Active Monitors",
+        "active_monitors_desc": "Total sitemaps being tracked",
+        "changes_today": "Changes Today",
+        "changes_today_desc": "Detected changes in the last 24h",
+        "all_good": "All systems operational",
+        "recent_changes": "Recent Changes",
+        "recent_changes_desc": "Latest sitemap modifications detected across your monitors.",
+        "view_all": "View All",
+        "loading": "Loading activity...",
+        "no_changes": "No recent changes detected.",
+        "added": "Added",
+        "removed": "Removed",
+        "modified": "Modified"
+    },
+    "auth": {
+        "welcome_back": "Welcome back",
+        "sign_in_desc": "Enter your credentials to access the dashboard",
+        "email": "Email",
+        "password": "Password",
+        "forgot_password": "Forgot password?",
+        "sign_in": "Sign In",
+        "no_account": "Don't have an account?",
+        "sign_up": "Sign Up",
+        "create_account": "Create an account",
+        "sign_up_desc": "Start monitoring your sitemaps for free",
+        "confirm_password": "Confirm Password",
+        "already_have_account": "Already have an account?"
+    },
+    "status": {
+        "error": "system(s) reporting errors"
+    }
+}

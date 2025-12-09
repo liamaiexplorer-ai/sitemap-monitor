@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { api, setAccessToken } from '@/services/api'
+import { queryClient } from '@/utils/queryClient'
 
 interface User {
   id: string
@@ -70,6 +71,7 @@ export const useAuthStore = create<AuthState>()(
         } catch {
           // 忽略登出错误
         }
+        queryClient.removeQueries()
         get().setToken(null)
         set({ user: null, isAuthenticated: false })
       },
