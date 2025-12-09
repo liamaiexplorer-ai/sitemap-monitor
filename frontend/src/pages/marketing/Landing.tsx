@@ -112,7 +112,7 @@ export default function Landing() {
                         <h1 className="text-6xl md:text-8xl font-display font-bold tracking-tight text-slate-900 leading-[1.1]">
                             {t('landing.hero_title')} <br />
                             <span className="relative">
-                                <span className="bg-clip-text text-transparent bg-gradient-to-r from-violet-600 via-fuchsia-600 to-pink-600 animate-gradient-x">
+                                <span className="bg-clip-text text-transparent bg-gradient-to-r from-violet-600 via-fuchsia-600 to-pink-600">
                                     {t('landing.hero_title_highlight')}
                                 </span>
                                 <svg className="absolute w-full h-3 -bottom-1 left-0 text-violet-400 opacity-50" viewBox="0 0 200 9" fill="none" xmlns="http://www.w3.org/2000/svg">

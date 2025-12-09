@@ -16,9 +16,11 @@ import LandingPage from '@/pages/marketing/Landing'
 
 // 路由保护组件
 function PrivateRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated } = useAuthStore()
+  const { isAuthenticated, token } = useAuthStore()
 
-  if (!isAuthenticated) {
+  // 如果有 token 但未验证，说明正在恢复状态，展示 loading 或暂不重定向
+  // 只有在既没有 token 也没有验证状态时才重定向
+  if (!isAuthenticated && !token) {
     return <Navigate to="/" replace />
   }
 
@@ -26,9 +28,10 @@ function PrivateRoute({ children }: { children: React.ReactNode }) {
 }
 
 function PublicRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated } = useAuthStore()
+  const { isAuthenticated, token } = useAuthStore()
 
-  if (isAuthenticated) {
+  // 如果已验证或者虽未验证但有 token（正在恢复），都应该去 dashboard
+  if (isAuthenticated || token) {
     return <Navigate to="/dashboard" replace />
   }
 

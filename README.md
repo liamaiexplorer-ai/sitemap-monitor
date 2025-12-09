@@ -58,7 +58,14 @@ docker-compose up -d
 cd backend
 pip install -e .
 # Start DB & Redis via Docker first
+# Terminal 1: API Server
 uvicorn sitemap_monitor.main:app --reload
+
+# Terminal 2: Celery Worker
+celery -A sitemap_monitor.tasks worker --loglevel=info
+
+# Terminal 3: Celery Beat (Scheduler)
+celery -A sitemap_monitor.tasks beat --loglevel=info
 ```
 
 ### Frontend Setup

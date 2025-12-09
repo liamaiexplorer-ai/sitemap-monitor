@@ -57,7 +57,14 @@ docker-compose up -d
 cd backend
 pip install -e .
 # 请先通过 Docker 启动 DB & Redis
+# 终端 1: API 服务
 uvicorn sitemap_monitor.main:app --reload
+
+# 终端 2: Celery Worker
+celery -A sitemap_monitor.tasks worker --loglevel=info
+
+# 终端 3: Celery Beat (调度器)
+celery -A sitemap_monitor.tasks beat --loglevel=info
 ```
 
 ### 前端设置
