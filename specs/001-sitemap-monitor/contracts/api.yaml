@@ -1,0 +1,986 @@
+openapi: 3.1.0
+info:
+  title: Sitemap Monitor API
+  description: API for monitoring sitemap changes
+  version: 1.0.0
+  contact:
+    name: Sitemap Monitor Team
+
+servers:
+  - url: /api/v1
+    description: API v1
+
+tags:
+  - name: auth
+    description: 认证相关
+  - name: monitors
+    description: 监控任务管理
+  - name: changes
+    description: 变更历史
+  - name: notifications
+    description: 通知配置
+  - name: users
+    description: 用户管理
+
+paths:
+  # ============ 认证 ============
+  /auth/register:
+    post:
+      tags: [auth]
+      summary: 用户注册
+      operationId: register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: 注册成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          description: 邮箱已存在或参数无效
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/login:
+    post:
+      tags: [auth]
+      summary: 用户登录
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: 登录成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+          headers:
+            Set-Cookie:
+              description: Refresh token in HTTPOnly cookie
+              schema:
+                type: string
+        '401':
+          description: 邮箱或密码错误
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /auth/logout:
+    post:
+      tags: [auth]
+      summary: 用户登出
+      operationId: logout
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: 登出成功
+
+  /auth/refresh:
+    post:
+      tags: [auth]
+      summary: 刷新访问令牌
+      operationId: refreshToken
+      responses:
+        '200':
+          description: 刷新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '401':
+          description: Refresh token 无效或过期
+
+  /auth/password/reset-request:
+    post:
+      tags: [auth]
+      summary: 请求重置密码
+      operationId: requestPasswordReset
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email:
+                  type: string
+                  format: email
+      responses:
+        '200':
+          description: 如果邮箱存在，将发送重置链接
+
+  /auth/password/reset:
+    post:
+      tags: [auth]
+      summary: 重置密码
+      operationId: resetPassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token, new_password]
+              properties:
+                token:
+                  type: string
+                new_password:
+                  type: string
+                  minLength: 8
+      responses:
+        '200':
+          description: 密码重置成功
+        '400':
+          description: Token 无效或过期
+
+  # ============ 用户 ============
+  /users/me:
+    get:
+      tags: [users]
+      summary: 获取当前用户信息
+      operationId: getCurrentUser
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+
+    patch:
+      tags: [users]
+      summary: 更新当前用户信息
+      operationId: updateCurrentUser
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRequest'
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+
+  /users/me/password:
+    put:
+      tags: [users]
+      summary: 修改密码
+      operationId: changePassword
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [current_password, new_password]
+              properties:
+                current_password:
+                  type: string
+                new_password:
+                  type: string
+                  minLength: 8
+      responses:
+        '200':
+          description: 密码修改成功
+        '400':
+          description: 当前密码错误
+
+  /users/me/onboarding:
+    post:
+      tags: [users]
+      summary: 完成新手引导
+      operationId: completeOnboarding
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 引导完成
+
+  # ============ 监控任务 ============
+  /monitors:
+    get:
+      tags: [monitors]
+      summary: 获取监控任务列表
+      operationId: listMonitors
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/MonitorStatus'
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+            minimum: 1
+        - name: page_size
+          in: query
+          schema:
+            type: integer
+            default: 20
+            maximum: 100
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MonitorListResponse'
+
+    post:
+      tags: [monitors]
+      summary: 创建监控任务
+      operationId: createMonitor
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMonitorRequest'
+      responses:
+        '201':
+          description: 创建成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MonitorResponse'
+        '400':
+          description: URL 无效或已存在
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          description: 超出监控数量限制
+
+  /monitors/{monitor_id}:
+    parameters:
+      - name: monitor_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+
+    get:
+      tags: [monitors]
+      summary: 获取监控任务详情
+      operationId: getMonitor
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MonitorResponse'
+        '404':
+          description: 监控任务不存在
+
+    patch:
+      tags: [monitors]
+      summary: 更新监控任务
+      operationId: updateMonitor
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateMonitorRequest'
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MonitorResponse'
+
+    delete:
+      tags: [monitors]
+      summary: 删除监控任务
+      operationId: deleteMonitor
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: 删除成功
+
+  /monitors/{monitor_id}/pause:
+    post:
+      tags: [monitors]
+      summary: 暂停监控任务
+      operationId: pauseMonitor
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: monitor_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: 暂停成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MonitorResponse'
+
+  /monitors/{monitor_id}/resume:
+    post:
+      tags: [monitors]
+      summary: 恢复监控任务
+      operationId: resumeMonitor
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: monitor_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: 恢复成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MonitorResponse'
+
+  /monitors/{monitor_id}/check:
+    post:
+      tags: [monitors]
+      summary: 立即检查（手动触发）
+      operationId: triggerCheck
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: monitor_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '202':
+          description: 检查任务已加入队列
+
+  /monitors/validate-url:
+    post:
+      tags: [monitors]
+      summary: 验证 Sitemap URL
+      operationId: validateSitemapUrl
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [url]
+              properties:
+                url:
+                  type: string
+                  format: uri
+      responses:
+        '200':
+          description: 验证结果
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  valid:
+                    type: boolean
+                  url_count:
+                    type: integer
+                  is_sitemap_index:
+                    type: boolean
+                  error:
+                    type: string
+
+  # ============ 变更历史 ============
+  /monitors/{monitor_id}/changes:
+    get:
+      tags: [changes]
+      summary: 获取变更历史
+      operationId: listChanges
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: monitor_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: change_type
+          in: query
+          schema:
+            $ref: '#/components/schemas/ChangeType'
+        - name: start_date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: page_size
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChangeListResponse'
+
+  /monitors/{monitor_id}/changes/{change_id}:
+    get:
+      tags: [changes]
+      summary: 获取变更详情
+      operationId: getChange
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: monitor_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: change_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChangeDetailResponse'
+
+  # ============ 通知配置 ============
+  /notification-channels:
+    get:
+      tags: [notifications]
+      summary: 获取通知渠道列表
+      operationId: listNotificationChannels
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/NotificationChannelResponse'
+
+    post:
+      tags: [notifications]
+      summary: 创建通知渠道
+      operationId: createNotificationChannel
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateNotificationChannelRequest'
+      responses:
+        '201':
+          description: 创建成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationChannelResponse'
+
+  /notification-channels/{channel_id}:
+    parameters:
+      - name: channel_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+
+    get:
+      tags: [notifications]
+      summary: 获取通知渠道详情
+      operationId: getNotificationChannel
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationChannelResponse'
+
+    patch:
+      tags: [notifications]
+      summary: 更新通知渠道
+      operationId: updateNotificationChannel
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateNotificationChannelRequest'
+      responses:
+        '200':
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationChannelResponse'
+
+    delete:
+      tags: [notifications]
+      summary: 删除通知渠道
+      operationId: deleteNotificationChannel
+      security:
+        - bearerAuth: []
+      responses:
+        '204':
+          description: 删除成功
+
+  /notification-channels/{channel_id}/test:
+    post:
+      tags: [notifications]
+      summary: 测试通知渠道
+      operationId: testNotificationChannel
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: channel_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: 测试结果
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  error:
+                    type: string
+
+  /monitors/{monitor_id}/channels:
+    get:
+      tags: [notifications]
+      summary: 获取监控任务的通知渠道
+      operationId: getMonitorChannels
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: monitor_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/NotificationChannelResponse'
+
+    put:
+      tags: [notifications]
+      summary: 设置监控任务的通知渠道
+      operationId: setMonitorChannels
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: monitor_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [channel_ids]
+              properties:
+                channel_ids:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+      responses:
+        '200':
+          description: 设置成功
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # ========== 请求 ==========
+    RegisterRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+
+    UpdateUserRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+
+    CreateMonitorRequest:
+      type: object
+      required: [sitemap_url]
+      properties:
+        name:
+          type: string
+          maxLength: 255
+        sitemap_url:
+          type: string
+          format: uri
+        check_interval_minutes:
+          type: integer
+          minimum: 15
+          maximum: 1440
+          default: 60
+        channel_ids:
+          type: array
+          items:
+            type: string
+            format: uuid
+
+    UpdateMonitorRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 255
+        check_interval_minutes:
+          type: integer
+          minimum: 15
+          maximum: 1440
+
+    CreateNotificationChannelRequest:
+      type: object
+      required: [name, channel_type, config]
+      properties:
+        name:
+          type: string
+          maxLength: 255
+        channel_type:
+          $ref: '#/components/schemas/ChannelType'
+        config:
+          type: object
+          description: 渠道配置，根据 channel_type 不同而不同
+
+    UpdateNotificationChannelRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          maxLength: 255
+        config:
+          type: object
+        is_active:
+          type: boolean
+
+    # ========== 响应 ==========
+    ErrorResponse:
+      type: object
+      required: [error, message]
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+
+    TokenResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+        token_type:
+          type: string
+          default: bearer
+        expires_in:
+          type: integer
+          description: 过期时间（秒）
+
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        is_verified:
+          type: boolean
+        has_completed_onboarding:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+
+    MonitorResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        sitemap_url:
+          type: string
+          format: uri
+        check_interval_minutes:
+          type: integer
+        status:
+          $ref: '#/components/schemas/MonitorStatus'
+        last_check_at:
+          type: string
+          format: date-time
+          nullable: true
+        last_error:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    MonitorListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/MonitorResponse'
+        total:
+          type: integer
+        page:
+          type: integer
+        page_size:
+          type: integer
+
+    ChangeListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChangeSummaryResponse'
+        total:
+          type: integer
+        page:
+          type: integer
+        page_size:
+          type: integer
+
+    ChangeSummaryResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        change_type:
+          $ref: '#/components/schemas/ChangeType'
+        added_count:
+          type: integer
+        removed_count:
+          type: integer
+        modified_count:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+
+    ChangeDetailResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        change_type:
+          $ref: '#/components/schemas/ChangeType'
+        added_count:
+          type: integer
+        removed_count:
+          type: integer
+        modified_count:
+          type: integer
+        changes:
+          type: object
+          properties:
+            added:
+              type: array
+              items:
+                $ref: '#/components/schemas/UrlChange'
+            removed:
+              type: array
+              items:
+                $ref: '#/components/schemas/UrlChange'
+            modified:
+              type: array
+              items:
+                $ref: '#/components/schemas/UrlModification'
+        created_at:
+          type: string
+          format: date-time
+
+    UrlChange:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+        lastmod:
+          type: string
+          nullable: true
+
+    UrlModification:
+      type: object
+      properties:
+        url:
+          type: string
+          format: uri
+        old_lastmod:
+          type: string
+          nullable: true
+        new_lastmod:
+          type: string
+          nullable: true
+
+    NotificationChannelResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        channel_type:
+          $ref: '#/components/schemas/ChannelType'
+        config:
+          type: object
+        is_active:
+          type: boolean
+        last_test_at:
+          type: string
+          format: date-time
+          nullable: true
+        last_test_success:
+          type: boolean
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+
+    # ========== 枚举 ==========
+    MonitorStatus:
+      type: string
+      enum: [active, paused, error]
+
+    ChangeType:
+      type: string
+      enum: [initial, no_change, changed]
+
+    ChannelType:
+      type: string
+      enum: [email, webhook]
