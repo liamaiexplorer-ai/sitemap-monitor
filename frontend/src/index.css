@@ -3,5 +3,20 @@
 @tailwind utilities;
 
 body {
-  @apply bg-gray-50 text-gray-900 antialiased;
+  @apply bg-soft-bg text-gray-900 antialiased font-sans overflow-x-hidden;
+  background: radial-gradient(circle at 15% 50%, rgba(226, 232, 255, 0.8), transparent 25%),
+              radial-gradient(circle at 85% 30%, rgba(220, 255, 245, 0.8), transparent 25%);
+  background-attachment: fixed;
+}
+
+.glass-panel {
+  @apply backdrop-blur-xl bg-white/40 border border-white/60 shadow-xl;
+}
+
+.glass-input {
+  @apply bg-white/50 border border-white/60 focus:border-purple-400/50 backdrop-blur-sm transition-all duration-300 shadow-sm focus:shadow-md focus:ring-2 focus:ring-purple-200/50 outline-none;
+}
+
+.text-gradient {
+  @apply bg-clip-text text-transparent bg-gradient-to-r from-violet-600 to-cyan-500;
 }

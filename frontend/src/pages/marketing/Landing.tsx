@@ -1,46 +1,91 @@
-import { motion } from 'framer-motion';
-import { ArrowRight, BarChart2, Check, Globe, LayoutDashboard, Shield, Zap } from 'lucide-react';
+import { motion, useScroll, useTransform } from 'framer-motion';
+import { ArrowRight, BarChart2, Check, Globe, LayoutDashboard, Shield, Zap, Sparkles, Languages } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { cn } from '@/utils/cn';
 import { useTranslation } from 'react-i18next';
-
-const fadeIn = {
-    initial: { opacity: 0, y: 20 },
-    animate: { opacity: 1, y: 0 },
-    transition: { duration: 0.5 }
-};
-
-const stagger = {
-    animate: {
-        transition: {
-            staggerChildren: 0.1
-        }
-    }
-};
+import { Menu, Transition } from '@headlessui/react';
+import { Fragment } from 'react';
+import { cn } from '@/utils/cn';
+import { GlassCard } from '@/components/UI/GlassCard';
+import { AnimatedBackground } from '@/components/Layout/AnimatedBackground';
 
 export default function Landing() {
-    const { t } = useTranslation();
+    const { t, i18n } = useTranslation();
+    const { scrollY } = useScroll();
+
+    const changeLanguage = (lng: string) => {
+        i18n.changeLanguage(lng);
+    };
+    const y1 = useTransform(scrollY, [0, 500], [0, 200]);
+    const y2 = useTransform(scrollY, [0, 500], [0, -150]);
 
     return (
-        <div className="min-h-screen bg-slate-50 text-slate-900 font-sans">
+        <div className="min-h-screen font-sans overflow-x-hidden text-gray-900 selection:bg-fuchsia-300 selection:text-fuchsia-900">
+            <AnimatedBackground />
+
             {/* Navigation */}
-            <nav className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-slate-200">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold">
+            <nav className="fixed top-6 left-0 right-0 z-50 px-4 md:px-6">
+                <div className="max-w-7xl mx-auto glass-panel rounded-full h-16 px-6 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center text-white font-bold shadow-lg shadow-violet-500/30">
                             S
                         </div>
-                        <span className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 to-violet-600">
+                        <span className="text-lg font-display font-bold bg-clip-text text-transparent bg-gradient-to-r from-violet-900 to-indigo-900">
                             SitemapMonitor
                         </span>
                     </div>
-                    <div className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600">
-                        <a href="#features" className="hover:text-indigo-600 transition-colors">Features</a>
-                        <a href="#pricing" className="hover:text-indigo-600 transition-colors">Pricing</a>
-                        <Link to="/login" className="px-4 py-2 border border-slate-200 rounded-full hover:border-indigo-600 hover:text-indigo-600 transition-all">
+                    <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600">
+                        {/* Language Switcher */}
+                        <Menu as="div" className="relative">
+                            <Menu.Button className="flex items-center p-2 text-slate-500 hover:text-indigo-600 transition-colors rounded-full hover:bg-slate-50/50">
+                                <Languages className="w-5 h-5" />
+                            </Menu.Button>
+                            <Transition
+                                as={Fragment}
+                                enter="transition ease-out duration-100"
+                                enterFrom="transform opacity-0 scale-95"
+                                enterTo="transform opacity-100 scale-100"
+                                leave="transition ease-in duration-75"
+                                leaveFrom="transform opacity-100 scale-100"
+                                leaveTo="transform opacity-0 scale-95"
+                            >
+                                <Menu.Items className="absolute right-0 z-10 mt-2 w-32 origin-top-right rounded-xl bg-white/90 backdrop-blur-xl py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none border border-white/20">
+                                    <Menu.Item>
+                                        {({ active }) => (
+                                            <button
+                                                onClick={() => changeLanguage('zh')}
+                                                className={cn(
+                                                    active ? 'bg-slate-50' : '',
+                                                    'block px-4 py-2 text-sm text-slate-700 w-full text-left',
+                                                    i18n.language === 'zh' ? 'font-bold text-indigo-600' : ''
+                                                )}
+                                            >
+                                                中文
+                                            </button>
+                                        )}
+                                    </Menu.Item>
+                                    <Menu.Item>
+                                        {({ active }) => (
+                                            <button
+                                                onClick={() => changeLanguage('en')}
+                                                className={cn(
+                                                    active ? 'bg-slate-50' : '',
+                                                    'block px-4 py-2 text-sm text-slate-700 w-full text-left',
+                                                    i18n.language === 'en' ? 'font-bold text-indigo-600' : ''
+                                                )}
+                                            >
+                                                English
+                                            </button>
+                                        )}
+                                    </Menu.Item>
+                                </Menu.Items>
+                            </Transition>
+                        </Menu>
+
+                        <a href="#features" className="hover:text-violet-600 transition-colors">{t('landing.features_title')}</a>
+                        <Link to="/login" className="px-5 py-2 hover:text-violet-600 transition-all">
                             {t('common.login')}
                         </Link>
-                        <Link to="/register" className="px-4 py-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200">
+                        <Link to="/register" className="px-6 py-2.5 bg-slate-900 text-white rounded-full hover:bg-slate-800 transition-all shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 duration-300">
                             {t('landing.get_started')}
                         </Link>
                     </div>
@@ -48,119 +93,107 @@ export default function Landing() {
             </nav>
 
             {/* Hero Section */}
-            <section className="pt-32 pb-20 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+            <section className="relative pt-40 pb-32 px-4 sm:px-6 lg:px-8">
                 <div className="max-w-7xl mx-auto text-center relative z-10">
                     <motion.div
-                        initial="initial"
-                        animate="animate"
-                        variants={stagger}
-                        className="space-y-6"
+                        initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.8 }}
+                        className="space-y-8"
                     >
-                        <motion.div variants={fadeIn} className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-sm font-medium border border-indigo-100">
-                            <span className="relative flex h-2 w-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
-                            </span>
-                            Now Open Source
+                        <motion.div
+                            whileHover={{ scale: 1.05 }}
+                            className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/40 border border-white/60 backdrop-blur-md text-violet-700 text-sm font-medium shadow-sm cursor-default"
+                        >
+                            <Sparkles className="w-4 h-4 text-amber-500" />
+                            <span className="font-display">Now Open Source</span>
                         </motion.div>
 
-                        <motion.h1 variants={fadeIn} className="text-5xl md:text-7xl font-extrabold tracking-tight text-slate-900">
+                        <h1 className="text-6xl md:text-8xl font-display font-bold tracking-tight text-slate-900 leading-[1.1]">
                             {t('landing.hero_title')} <br />
-                            <span className="bg-clip-text text-transparent bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600">
-                                {t('landing.hero_title_highlight')}
+                            <span className="relative">
+                                <span className="bg-clip-text text-transparent bg-gradient-to-r from-violet-600 via-fuchsia-600 to-pink-600 animate-gradient-x">
+                                    {t('landing.hero_title_highlight')}
+                                </span>
+                                <svg className="absolute w-full h-3 -bottom-1 left-0 text-violet-400 opacity-50" viewBox="0 0 200 9" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M2.00021 7.29297C52.5002 2.29297 150.003 -3.20703 198.003 3.79297" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
+                                </svg>
                             </span>
-                        </motion.h1>
+                        </h1>
 
-                        <motion.p variants={fadeIn} className="max-w-2xl mx-auto text-xl text-slate-600">
+                        <p className="max-w-2xl mx-auto text-xl md:text-2xl text-slate-600 font-light leading-relaxed">
                             {t('landing.hero_desc')}
-                        </motion.p>
+                        </p>
 
-                        <motion.div variants={fadeIn} className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-                            <Link to="/register" className="w-full sm:w-auto px-8 py-4 bg-indigo-600 text-white rounded-full font-bold text-lg hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-200 flex items-center justify-center gap-2 group">
-                                {t('landing.get_started')}
-                                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                        <div className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-8">
+                            <Link to="/register" className="group relative px-8 py-4 bg-slate-900 text-white rounded-full font-bold text-lg overflow-hidden shadow-2xl shadow-violet-500/20 transition-all hover:scale-105">
+                                <div className="absolute inset-0 w-full h-full bg-gradient-to-r from-violet-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                                <span className="relative flex items-center justify-center gap-2">
+                                    {t('landing.get_started')}
+                                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                                </span>
                             </Link>
-                            <a href="https://github.com" target="_blank" rel="noreferrer" className="w-full sm:w-auto px-8 py-4 bg-white text-slate-700 border border-slate-200 rounded-full font-bold text-lg hover:border-slate-400 hover:bg-slate-50 transition-all flex items-center justify-center gap-2">
-                                <LayoutDashboard className="w-5 h-5" />
-                                {t('landing.view_demo')}
-                            </a>
-                        </motion.div>
-                    </motion.div>
-                </div>
-
-                {/* Abstract Background Elements */}
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full -z-10 pointer-events-none">
-                    <div className="absolute top-20 left-10 w-72 h-72 bg-indigo-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob"></div>
-                    <div className="absolute top-40 right-10 w-72 h-72 bg-violet-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-2000"></div>
-                    <div className="absolute -bottom-20 left-1/2 w-72 h-72 bg-fuchsia-300 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-blob animation-delay-4000"></div>
-                </div>
-            </section>
-
-            {/* Stats/Social Proof (Optional placeholder) */}
-            <section className="py-10 border-y border-slate-100 bg-white/50">
-                <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-                    {[
-                        { label: 'Sitemaps Monitored', value: '10k+' },
-                        { label: 'Changes Detected', value: '1M+' },
-                        { label: 'Uptime', value: '99.9%' },
-                        { label: 'Open Source', value: '100%' },
-                    ].map((stat, i) => (
-                        <div key={i}>
-                            <div className="text-3xl font-bold text-slate-900">{stat.value}</div>
-                            <div className="text-sm text-slate-500 font-medium uppercase tracking-wide">{stat.label}</div>
                         </div>
-                    ))}
+                    </motion.div>
+
+                    {/* Floating Elements */}
+                    <motion.div style={{ y: y1 }} className="absolute -left-20 top-40 hidden lg:block opacity-60">
+                        <GlassCard className="w-64 rotate-[-6deg]">
+                            <div className="flex items-center gap-4 mb-3">
+                                <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-green-600"><Check className="w-5 h-5" /></div>
+                                <div>
+                                    <div className="text-sm font-bold text-slate-800">Sitemap Valid</div>
+                                    <div className="text-xs text-slate-500">Just now</div>
+                                </div>
+                            </div>
+                            <div className="h-2 bg-slate-100 rounded-full w-full overflow-hidden">
+                                <div className="h-full bg-green-500 w-full" />
+                            </div>
+                        </GlassCard>
+                    </motion.div>
+
+                    <motion.div style={{ y: y2 }} className="absolute -right-20 top-60 hidden lg:block opacity-60">
+                        <GlassCard className="w-64 rotate-[6deg]">
+                            <div className="flex items-center gap-4 mb-3">
+                                <div className="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center text-amber-600"><Zap className="w-5 h-5" /></div>
+                                <div>
+                                    <div className="text-sm font-bold text-slate-800">New URL Found</div>
+                                    <div className="text-xs text-slate-500">2 mins ago</div>
+                                </div>
+                            </div>
+                            <div className="flex gap-1">
+                                <div className="h-2 bg-slate-100 rounded-full w-2/3" />
+                                <div className="h-2 bg-slate-100 rounded-full w-1/3" />
+                            </div>
+                        </GlassCard>
+                    </motion.div>
                 </div>
             </section>
 
             {/* Features Grid */}
-            <section id="features" className="py-24 bg-white">
+            <section id="features" className="py-32 relative">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="text-center mb-16">
-                        <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-4">{t('landing.features_title')}</h2>
-                        <p className="text-lg text-slate-600 max-w-2xl mx-auto">{t('landing.features_desc')}</p>
+                    <div className="text-center mb-24">
+                        <h2 className="text-4xl md:text-5xl font-display font-bold text-slate-900 mb-6">{t('landing.features_title')}</h2>
+                        <p className="text-xl text-slate-600 max-w-2xl mx-auto font-light">{t('landing.features_desc')}</p>
                     </div>
 
                     <div className="grid md:grid-cols-3 gap-8">
                         {[
-                            {
-                                icon: Globe,
-                                title: "Real-time Monitoring",
-                                desc: "Automatically scan your sitemaps for changes, additions, and removals as they happen."
-                            },
-                            {
-                                icon: BarChart2,
-                                title: "Change Analytics",
-                                desc: "Visualize growth trends and identify SEO opportunities with detailed historical data."
-                            },
-                            {
-                                icon: Zap,
-                                title: "Instant Alerts",
-                                desc: "Get notified via Email, Slack, or Webhook immediately when critical changes occur."
-                            },
-                            {
-                                icon: Shield,
-                                title: "Health Checks",
-                                desc: "Automatically validate URLs for 404s, redirects, and other status codes."
-                            },
-                            {
-                                icon: LayoutDashboard,
-                                title: "Modern Dashboard",
-                                desc: "A beautiful, intuitive interface designed for efficiency and clarity."
-                            },
-                            {
-                                icon: Check,
-                                title: "SEO Validation",
-                                desc: "Ensure your sitemap follows best practices and is optimized for search engines."
-                            }
+                            { icon: Globe, color: "text-blue-600", bg: "bg-blue-100", title: "实时监控", desc: "自动扫描您的 Sitemap，实时检测更改、添加和删除。" },
+                            { icon: BarChart2, color: "text-purple-600", bg: "bg-purple-100", title: "变更分析", desc: "通过详细的历史数据可视化增长趋势并识别 SEO 机会。" },
+                            { icon: Zap, color: "text-amber-600", bg: "bg-amber-100", title: "即时警报", desc: "当发生关键更改时，立即通过电子邮件、Slack 或 Webhook 获得通知。" },
+                            { icon: Shield, color: "text-emerald-600", bg: "bg-emerald-100", title: "健康检查", desc: "自动验证 URL 的 404、重定向和其他状态代码。" },
+                            { icon: LayoutDashboard, color: "text-pink-600", bg: "bg-pink-100", title: "现代仪表板", desc: "设计美观、直观的界面，旨在提高效率和清晰度。" },
+                            { icon: Check, color: "text-cyan-600", bg: "bg-cyan-100", title: "SEO 验证", desc: "确保您的 Sitemap 遵循最佳实践并针对搜索引擎进行了优化。支持 Google, Bing 等主流搜索引擎标准。" }
                         ].map((feature, i) => (
-                            <div key={i} className="p-8 rounded-2xl bg-slate-50 border border-slate-100 hover:border-indigo-100 hover:shadow-lg transition-all group">
-                                <div className="w-12 h-12 bg-white rounded-xl shadow-sm border border-slate-200 flex items-center justify-center text-indigo-600 mb-6 group-hover:scale-110 transition-transform">
-                                    <feature.icon className="w-6 h-6" />
+                            <GlassCard key={i} className="hover:-translate-y-2 transition-transform duration-300">
+                                <div className={`w-14 h-14 ${feature.bg} rounded-2xl flex items-center justify-center ${feature.color} mb-6`}>
+                                    <feature.icon className="w-7 h-7" />
                                 </div>
-                                <h3 className="text-xl font-bold text-slate-900 mb-3">{feature.title}</h3>
+                                <h3 className="text-xl font-bold text-slate-900 mb-3 font-display">{feature.title}</h3>
                                 <p className="text-slate-600 leading-relaxed">{feature.desc}</p>
-                            </div>
+                            </GlassCard>
                         ))}
                     </div>
                 </div>
@@ -168,50 +201,29 @@ export default function Landing() {
 
             {/* CTA Section */}
             <section className="py-24 px-4">
-                <div className="max-w-5xl mx-auto bg-indigo-900 rounded-3xl overflow-hidden relative text-center py-20 px-6">
-                    <div className="absolute inset-0 opacity-20 bg-[url('https://grainy-gradients.vercel.app/noise.svg')]"></div>
-                    <div className="relative z-10">
-                        <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">Ready to take control?</h2>
-                        <p className="text-indigo-200 text-lg mb-10 max-w-xl mx-auto">Join thousands of developers and SEO pros who trust Sitemap Monitor.</p>
-                        <Link to="/register" className="inline-flex items-center px-8 py-4 bg-white text-indigo-900 rounded-full font-bold text-lg hover:bg-indigo-50 transition-colors">
-                            {t('landing.get_started')}
-                            <ArrowRight className="w-5 h-5 ml-2" />
-                        </Link>
+                <div className="max-w-5xl mx-auto relative group">
+                    <div className="absolute inset-0 bg-gradient-to-r from-violet-600 to-fuchsia-600 rounded-[3rem] blur-xl opacity-30 group-hover:opacity-50 transition-opacity duration-500" />
+                    <div className="relative bg-slate-900 rounded-[2.5rem] overflow-hidden text-center py-24 px-6 shadow-2xl">
+                        <div className="absolute inset-0 opacity-20 bg-[url('https://grainy-gradients.vercel.app/noise.svg')]"></div>
+                        <div className="relative z-10">
+                            <h2 className="text-4xl md:text-6xl font-display font-bold text-white mb-8">Ready to take control?</h2>
+                            <p className="text-indigo-200 text-xl mb-12 max-w-xl mx-auto font-light">Join thousands of developers and SEO pros who trust Sitemap Monitor.</p>
+                            <Link to="/register" className="inline-flex items-center px-10 py-5 bg-white text-indigo-900 rounded-full font-bold text-lg hover:bg-indigo-50 transition-all hover:scale-105 active:scale-95">
+                                {t('landing.get_started')}
+                                <ArrowRight className="w-5 h-5 ml-2" />
+                            </Link>
+                        </div>
                     </div>
                 </div>
             </section>
 
             {/* Footer */}
-            <footer className="bg-slate-900 text-slate-400 py-12 px-4 border-t border-slate-800">
-                <div className="max-w-7xl mx-auto grid md:grid-cols-4 gap-8 mb-8">
-                    <div className="col-span-1 md:col-span-2">
-                        <div className="flex items-center gap-2 mb-4 text-white">
-                            <div className="w-6 h-6 bg-indigo-600 rounded flex items-center justify-center font-bold text-xs">S</div>
-                            <span className="font-bold text-lg">SitemapMonitor</span>
-                        </div>
-                        <p className="max-w-xs text-sm">
-                            {t('landing.footer_desc')}
-                        </p>
-                    </div>
-                    <div>
-                        <h4 className="font-bold text-white mb-4">Product</h4>
-                        <ul className="space-y-2 text-sm">
-                            <li><a href="#" className="hover:text-white">Features</a></li>
-                            <li><a href="#" className="hover:text-white">Pricing</a></li>
-                            <li><a href="#" className="hover:text-white">API</a></li>
-                        </ul>
-                    </div>
-                    <div>
-                        <h4 className="font-bold text-white mb-4">Community</h4>
-                        <ul className="space-y-2 text-sm">
-                            <li><a href="#" className="hover:text-white">GitHub</a></li>
-                            <li><a href="#" className="hover:text-white">Discord</a></li>
-                            <li><a href="#" className="hover:text-white">Twitter</a></li>
-                        </ul>
-                    </div>
-                </div>
-                <div className="max-w-7xl mx-auto pt-8 border-t border-slate-800 text-center md:text-left text-xs">
-                    © {new Date().getFullYear()} SitemapMonitor. Open Source under MIT License.
+            <footer className="py-12 border-t border-white/40 bg-white/30 backdrop-blur-lg">
+                <div className="max-w-7xl mx-auto px-6 text-center text-slate-500 text-sm">
+                    <p className="mb-2">© {new Date().getFullYear()} SitemapMonitor. Open Source under MIT License.</p>
+                    <p>
+                        Support: <a href="mailto:liamaiexplorer@gmail.com" className="hover:text-violet-600 transition-colors">liamaiexplorer@gmail.com</a>
+                    </p>
                 </div>
             </footer>
         </div>
